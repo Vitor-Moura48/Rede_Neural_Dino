@@ -3,7 +3,7 @@ import Configurações.Variaveis_globais as Variaveis_globais
 from Jogo.obstaculos import *
 from Rede_Neural.Criação_de_Rede import *
 from Rede_Neural.Processador import *
-from Rede_Neural.Player import *
+from Jogo.Player import *
 from Jogo.Colisões import *
 
 # função para criar os objetos

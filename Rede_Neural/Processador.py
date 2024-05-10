@@ -25,6 +25,21 @@ class Processador:
     
         if tipo == 4:
             return F.leaky_relu(tensor)
+    
+    # retorna o valor mínimo para ativar o neuronio
+    def valor_de_ativacao(self):
+        
+        # se for sigmoid, o valor mínimo é 0.5
+        if funcoes_de_camadas[-2] == 1:
+            return 0.5
+        
+        # se for Relu, o valor mínimo é 0
+        elif funcoes_de_camadas[-2] == 2:
+            return 0
+        
+        # se for Tangente Hiperbólica, o valor mínimo é 0
+        elif funcoes_de_camadas[-2] == 3:
+            return 0
 
     # função para retornar as entradas para a rede neural
     def obter_entradas(self):
@@ -89,5 +104,5 @@ class Processador:
             saida_camada_tensor_ativada = self.aplicar_ativacao(saida_camada_tensor, Variaveis_globais.funcoes_de_camadas[camada - 1])
             self.estado_atual_da_rede = saida_camada_tensor_ativada ######################################
 
-        # variavel que contem o valor de saída da rede neural
-        self.comandos = self.estado_atual_da_rede.tolist()
+        # variavel que contem o valor de saída da rede neural 
+        self.output = [True if comando > self.valor_de_ativacao() else False for comando in self.estado_atual_da_rede.tolist()]
