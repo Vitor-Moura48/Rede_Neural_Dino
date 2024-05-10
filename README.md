@@ -2,6 +2,8 @@
 
 Este é um projeto que utiliza redes neurais para controlar um agente virtual em uma versão do jogo "T-Rex Game" do Google Chrome. A rede neural é treinada para permitir que o dino evite obstáculos que surgem no caminho.
 
+![Texto Alternativo](dados/imagens/img1.png)
+
 ## Descrição do Projeto
 O objetivo deste projeto é explorar o uso de redes neurais para criar um agente inteligente capaz de jogar o Jogo do Dino de forma autônoma. Utilizando a biblioteca Pytorch, numpy, e outras, desenvolvi uma versão simplificada do jogo em que o dino deve pular ou agachar para evitar os cactos que aparecem em sua frente.
 

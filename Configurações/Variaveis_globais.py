@@ -1,16 +1,16 @@
 from Configurações.Config import *
 
 # se o arquivo da geração anterior existir
-if os.path.exists("Rede_Neural/geracao_anterior.json"):
+if os.path.exists("dados/saves/geracao_anterior.json"):
 
     # carrega os dados da ultima geração salva
-    with open("Rede_Neural/geracao_anterior.json", 'r') as arquivo:
+    with open("dados/saves/geracao_anterior.json", 'r') as arquivo:
         geracao = json.load(arquivo)
         geracao_anterior = geracao
         
-    if os.path.exists("Rede_Neural/informacoes.json"):
+    if os.path.exists("dados/saves/informacoes.json"):
 
-        with open("Rede_Neural/informacoes.json", 'r') as arquivo:
+        with open("dados/saves/informacoes.json", 'r') as arquivo:
             informacoes = json.load(arquivo)
 
             contador_geracoes = informacoes[0]
@@ -30,19 +30,19 @@ else:
 
 
 # se o arquivo da geração anterior existir
-if os.path.exists("Rede_Neural/geracao_avo.json"):
+if os.path.exists("dados/saves/geracao_avo.json"):
 
     #carrega os dados da ultima geração salva
-    with open("Rede_Neural/geracao_avo.json", 'r') as arquivo:
+    with open("dados/saves/geracao_avo.json", 'r') as arquivo:
         geracao = json.load(arquivo)
         geracao_avo = geracao
 
 
 # se o arquivo de melhor individuo existir
-if os.path.exists("Rede_Neural/melhor_individuo.json"):
+if os.path.exists("dados/saves/melhor_individuo.json"):
 
     # lê o arquivo e armazena os pesos
-    with open("Rede_neural/melhor_individuo.json", 'r') as arquivo:
+    with open("dados/saves/melhor_individuo.json", 'r') as arquivo:
         camadas = json.load(arquivo)
     melhor_individuo = camadas
     maior_ditancia = camadas[0][0]

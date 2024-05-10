@@ -102,7 +102,7 @@ def nova_geracao():
     Variaveis_globais.juncao_de_geracoes = []     
 
      # salva algumas informações
-    with open("Rede_neural/informacoes.json", 'w') as arquivo:
+    with open("dados/saves/informacoes.json", 'w') as arquivo:
         json.dump([Variaveis_globais.contador_geracoes], arquivo)
 
     melhor_tempo_da_geracao = 0
@@ -126,7 +126,7 @@ def nova_geracao():
                                         ]
 
                 # se sim, adiciona ele em um arquivo csv
-                with open("Rede_neural/melhor_individuo.json", 'w') as arquivo:
+                with open("dados/saves/melhor_individuo.json", 'w') as arquivo:
                     json.dump(pesos_normalizados, arquivo)
 
     # printa o melhor tempo geral e o melhor tempo dessa geração
@@ -151,8 +151,8 @@ def nova_geracao():
                             ]
             json.dump(lista_geracao, arquivo)
     
-    salvar_geracao(Variaveis_globais.geracao_anterior, "Rede_Neural/geracao_anterior.json")
-    salvar_geracao(Variaveis_globais.geracao_avo, "Rede_Neural/geracao_avo.json")
+    salvar_geracao(Variaveis_globais.geracao_anterior, "dados/saves/geracao_anterior.json")
+    salvar_geracao(Variaveis_globais.geracao_avo, "dados/saves/geracao_avo.json")
 
     # junta as duas gerações mais recentes e organiza os individuos pela recompensa obtida por cada um  
     Variaveis_globais.juncao_de_geracoes = Variaveis_globais.geracao_avo + Variaveis_globais.geracao_anterior
