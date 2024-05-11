@@ -1,5 +1,5 @@
-from Configurações.Config import *
-import Configurações.Variaveis_globais as Variaveis_globais
+from config.configuracoes import *
+from config import Global
 
 class Obstaculos:  # classe que gerencia os projeteis
     def __init__(self):
@@ -28,10 +28,10 @@ class Obstaculos:  # classe que gerencia os projeteis
     # atualiza estado a cada iteração
     def update(self):
 
-        self.rect.x -= Variaveis_globais.velocidade_cenario
+        self.rect.x -= Global.velocidade_cenario
 
         if self.rect.right < 0:
-            Variaveis_globais.grupo_obstaculos.remove(self)
+            Global.grupo_obstaculos.remove(self)
 
         # cria um retandulo de colisão e mostra na tela 
         pygame.draw.rect(tela, (255, 000, 000), self.rect)

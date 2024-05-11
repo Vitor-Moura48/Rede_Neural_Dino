@@ -1,6 +1,5 @@
 from funcoes_main import *
 
-
 # loop principal
 while True:
 
@@ -8,7 +7,7 @@ while True:
     tela.fill((000, 000, 000))
 
     # se todos os players foram eliminados, cria uma nova geração ou partida
-    if len(Variaveis_globais.grupo_players) == 0:
+    if len(Global.grupo_players) == 0:
         nova_geracao_ou_nova_partida()
 
     # função para dar update em todos os objetos
@@ -24,7 +23,7 @@ while True:
     movimentacao_jogador()
 
     # define um limite de fps
-    Variaveis_globais.clock.tick(fps)
+    Global.clock.tick(fps)
 
     # atualiza o display
     pygame.display.update() 

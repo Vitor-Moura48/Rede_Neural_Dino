@@ -1,4 +1,4 @@
-from Configurações.Config import *
+from config.configuracoes import *
 
 # se o arquivo da geração anterior existir
 if os.path.exists("dados/saves/geracao_anterior.json"):

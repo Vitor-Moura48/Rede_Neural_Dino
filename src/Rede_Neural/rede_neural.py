@@ -1,5 +1,5 @@
-from Configurações.Config import *
-import Configurações.Variaveis_globais as Variaveis_globais
+from config.configuracoes import *
+import config.Global as Global
 
 class RedeNeural:
     def __init__(self, camadas=[]):
@@ -13,7 +13,7 @@ class RedeNeural:
             self.camadas.append([numpy.array([0] * configuracao_de_camadas[camada - 1], dtype=float) for neuronio in range(configuracao_de_camadas[camada])])
 
         # se for a primeira geração, chama uma função que randomiza todos os pesos, senão, faz uma nova a partir da(s) anterior(es)
-        self.iniciar_geracao() if Variaveis_globais.contador_geracoes == 0 else self.nova_geracao()
+        self.iniciar_geracao() if Global.contador_geracoes == 0 else self.nova_geracao()
 
         # variavel que vai armazenar todos os pesos daquela rede (gerados na criação de rede)
         self.tensores = [torch.tensor(camada, dtype=torch.float64) for camada in self.camadas]
@@ -25,17 +25,17 @@ class RedeNeural:
     # função utilizada para criar um anova geração
     def nova_geracao(self):
 
-        if Variaveis_globais.individuos_elite < numero_de_elitismo: # quantidade de cópias da melhor rede depende do valor definido
+        if Global.individuos_elite < numero_de_elitismo: # quantidade de cópias da melhor rede depende do valor definido
             
-            self.camadas = copy.deepcopy(Variaveis_globais.melhor_individuo[1:]) # obtem os pesos do melhor indivíduo
-            Variaveis_globais.individuos_elite += 1 # registra que foi feita mais uma cópia
+            self.camadas = copy.deepcopy(Global.melhor_individuo[1:]) # obtem os pesos do melhor indivíduo
+            Global.individuos_elite += 1 # registra que foi feita mais uma cópia
    
         else: # faz um sorteio dos individuos com preferencia dos melhores
      
             def roleta(): # sorteia um valor e busca seu indice
 
                 roleta = uniform(0, 1)
-                indice = numpy.searchsorted(Variaveis_globais.valores_proporcionais, roleta)
+                indice = numpy.searchsorted(Global.valores_proporcionais, roleta)
                 return indice
                 
             # sorteia dois individuos
@@ -43,7 +43,7 @@ class RedeNeural:
             roleta_2 = roleta()
 
             # calcula a média do desempenho dos dois individuos sorteados
-            media_de_recompensa = ((Variaveis_globais.juncao_de_geracoes[roleta_1][0][0] + Variaveis_globais.juncao_de_geracoes[roleta_2][0][0]) / 2) 
+            media_de_recompensa = ((Global.juncao_de_geracoes[roleta_1][0][0] + Global.juncao_de_geracoes[roleta_2][0][0]) / 2) 
 
             # reduz a taxa de mutação base de acordo com a aproximação do objetivo
             self.taxa_de_mutacao = taxa_de_mutacao_base - (media_de_recompensa / recompensa_objetivo)
@@ -57,10 +57,10 @@ class RedeNeural:
                 for neuronio in range(len(self.camadas[camada])):
 
                     if camada < camada_insercao_escolhida or (camada == camada_insercao_escolhida and neuronio < neuronio_insercao_escolhido):                                         
-                        self.camadas[camada][neuronio] = Variaveis_globais.juncao_de_geracoes[roleta_1][camada + 1][neuronio]# camada +1 porque a primeira camada = fitness
+                        self.camadas[camada][neuronio] = Global.juncao_de_geracoes[roleta_1][camada + 1][neuronio]# camada +1 porque a primeira camada = fitness
                   
                     elif camada > camada_insercao_escolhida or (camada == camada_insercao_escolhida and neuronio >= neuronio_insercao_escolhido):
-                        self.camadas[camada][neuronio] = Variaveis_globais.juncao_de_geracoes[roleta_2][camada + 1][neuronio]
+                        self.camadas[camada][neuronio] = Global.juncao_de_geracoes[roleta_2][camada + 1][neuronio]
        
     # função utilizada para simular a mutação
     def mutacao(self):
@@ -116,7 +116,7 @@ class RedeNeural:
         for camada in range(1, len(configuracao_de_camadas)):
 
             saida_camada_tensor = torch.matmul(self.estado_atual_da_rede, self.tensores[camada - 1].t()) + bias # executa as operações entre camadas
-            saida_camada_tensor_ativada = self.aplicar_ativacao(saida_camada_tensor, Variaveis_globais.funcoes_de_camadas[camada - 1]) # aplica a função de ativação
+            saida_camada_tensor_ativada = self.aplicar_ativacao(saida_camada_tensor, Global.funcoes_de_camadas[camada - 1]) # aplica a função de ativação
             self.estado_atual_da_rede = saida_camada_tensor_ativada # passa para a próxima camada, armazenando os dados da anterior
 
         # retorna True ou False para cada saída (a partir do critério da função de ativação)

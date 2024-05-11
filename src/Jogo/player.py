@@ -1,6 +1,6 @@
-from Configurações.Config import *
-import Configurações.Variaveis_globais as Variaveis_globais
-from Rede_Neural.rede_neural import RedeNeural
+from config.configuracoes import *
+import config.Global as Global
+from src.Rede_Neural.rede_neural import RedeNeural
 
 class Player:
     def __init__(self, real, indice):
@@ -30,7 +30,7 @@ class Player:
         projeteis = []
 
         def obter_distancias():
-            for projetil in Variaveis_globais.grupo_obstaculos:
+            for projetil in Global.grupo_obstaculos:
               
                 dados = projetil.buscar_informacoes()
 
@@ -61,7 +61,7 @@ class Player:
         normatizar_o_resultado()
         
         # variavel que vai conter os dados de entrada da rede
-        entradas = [Variaveis_globais.velocidade_cenario, self.rect.bottom]
+        entradas = [Global.velocidade_cenario, self.rect.bottom]
 
         # junta todos os dados que vão para a entrada da rede em uma única lista
         for projetil in projeteis:
@@ -71,14 +71,14 @@ class Player:
         return entradas
 
     def desativar(self):
-        Variaveis_globais.grupo_players_desativados[self.indice] = self
+        Global.grupo_players_desativados[self.indice] = self
     
     # atualiza o estado do player a cada geração
     def update(self):
         
         if self.real == False:
             # conta os loops
-            self.distancia_percorrida += 1 * Variaveis_globais.velocidade_cenario
+            self.distancia_percorrida += 1 * Global.velocidade_cenario
 
             self.rede_neural.definir_entrada(self.obter_entradas())
             output = self.rede_neural.obter_saida()
