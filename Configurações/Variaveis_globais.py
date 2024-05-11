@@ -72,9 +72,10 @@ comandos = [[False], [False]] # (melhorar depois)
 grupo_obstaculos = []
 grupo_processadores = {}
 grupo_players = {}
+grupo_players_desativados = {}
 
 clock = pygame.time.Clock()
 
 # variaveis para contar o fps
-contador_distancia = 0
+contador_frames = 0
 tempo_inicio = time.time()

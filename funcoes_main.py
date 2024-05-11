@@ -1,38 +1,30 @@
 from Configurações.Config import *
 import Configurações.Variaveis_globais as Variaveis_globais
 from Jogo.obstaculos import *
-from Rede_Neural.Criação_de_Rede import *
-from Rede_Neural.Processador import *
-from Jogo.Player import *
+from Jogo.player import *
 from Jogo.Colisões import *
 
 # função para criar os objetos
 def criar_objetos(quantidade_playes):
-
-    # cria o primeiro obstáculo
-    obstaculo = Obstaculos()  
-    Variaveis_globais.grupo_obstaculos.append(obstaculo)
-
+    
+    # cria o primeiro obstáculo 
+    Variaveis_globais.grupo_obstaculos.append(Obstaculos())
+    
     # cria os players a partir do valor definido em Config
     for indice_do_player_na_geracao in range(quantidade_playes):
 
-        # cria o player, que vai aparecer na tela
-        player = Player(False, indice_do_player_na_geracao)
-
         # se for o início de uma nova geração ele cria a nova geração normalmente
         if Variaveis_globais.partida_atual_da_geracao == 0:
+            
+            # cria o player, que vai aparecer na tela
+            player = Player(False, indice_do_player_na_geracao)
 
-            # cria a rede para processar as entradas
-            nova_rede = CriarRedeNeural()
-            resultado = nova_rede.randomizar_resultados()
-            processador = Processador(indice_do_player_na_geracao, resultado) 
-         
         # se não, copia as redes daquela geração
         else:
-            processador = Processador(indice_do_player_na_geracao, Variaveis_globais.geracao_atual[indice_do_player_na_geracao][1:])
+            player = Variaveis_globais.grupo_players_desativados[indice_do_player_na_geracao]
+            del Variaveis_globais.grupo_players_desativados[indice_do_player_na_geracao]
 
         # adiciona do grupo de redes e players novamente
-        Variaveis_globais.grupo_processadores[indice_do_player_na_geracao] = processador
         Variaveis_globais.grupo_players[indice_do_player_na_geracao] = player
     
     # condição para adicionar um player para o jogador
@@ -48,18 +40,18 @@ def criar_objetos(quantidade_playes):
 def exibir_fps():
     global mensagem_fps_para_tela
 
-    Variaveis_globais.contador_distancia += 1
+    Variaveis_globais.contador_frames += 1
     tempo_atual = time.time()
 
     delta = tempo_atual - Variaveis_globais.tempo_inicio
     # a cada x segundos, printa a quantidade de loops feitos
     if (delta) > 0.5:
 
-        mensagem_fps = "fps " + str(round(Variaveis_globais.contador_distancia / delta))
+        mensagem_fps = "fps " + str(round(Variaveis_globais.contador_frames / delta))
         mensagem_fps_para_tela = fonte.render(mensagem_fps, True, (255, 000, 000))
 
 
-        Variaveis_globais.contador_distancia = 0
+        Variaveis_globais.contador_frames = 0
         Variaveis_globais.tempo_inicio = tempo_atual
     
     # exibe a taxa de fps no display
@@ -75,9 +67,6 @@ def atualizar_objetos():
 
     for obstaculo in Variaveis_globais.grupo_obstaculos:
         obstaculo.update()
-     
-    for processador in Variaveis_globais.grupo_processadores.values():
-        processador.update()
     
     for player in Variaveis_globais.grupo_players.values():
         player.update()
@@ -154,27 +143,7 @@ def nova_geracao():
     salvar_geracao(Variaveis_globais.geracao_anterior, "dados/saves/geracao_anterior.json")
     salvar_geracao(Variaveis_globais.geracao_avo, "dados/saves/geracao_avo.json")
 
-    # junta as duas gerações mais recentes e organiza os individuos pela recompensa obtida por cada um  
-    Variaveis_globais.juncao_de_geracoes = Variaveis_globais.geracao_avo + Variaveis_globais.geracao_anterior
-    Variaveis_globais.juncao_de_geracoes.sort(key=lambda x: x[0])
-
-    # soma todas as recompensas dos individuos
-    total_de_recompesa = sum(individuo[0][0] for individuo in Variaveis_globais.juncao_de_geracoes)
-
-    # adiciona a proporção de recompensa do primeiro individuo
-    Variaveis_globais.valores_proporcionais = [Variaveis_globais.juncao_de_geracoes[0][0][0] / total_de_recompesa]
-    # adiciona proporcionalmente um valor de acordo com a recompensa de cada individuo (para a roleta)
-    for individuo in range(1, len(Variaveis_globais.juncao_de_geracoes)):
-        
-        # soma o valor anterior com o do individuo (para manter os valores "progredindo")
-        Variaveis_globais.valores_proporcionais.append(Variaveis_globais.valores_proporcionais[-1] + Variaveis_globais.juncao_de_geracoes[individuo][0][0] / total_de_recompesa)
-
-    # zera a geração atual para ser preenchida novamente
-    Variaveis_globais.geracao_atual = []
-
-    # recria a estrutura da geração atual (vazia)
-    for individuo in range(numero_players):
-        Variaveis_globais.geracao_atual.append([])
+    carregar_redes()
 
     # cria ou recria os objetos
     criar_objetos(numero_players)
@@ -204,8 +173,8 @@ def nova_geracao_ou_nova_partida():
     
 
 # função para verificar se o jogador movimentou o player e responder (melhorar depois)
-def movimentacao_jogador(): #################################################################################################### REFAZER #####################################
-   
+def movimentacao_jogador(): 
+
     # se a configuração for de um jogador, confere se ele está ativo
     if quantidade_jogadores == 1:
         if 'p1' in Variaveis_globais.grupo_players:
@@ -218,10 +187,8 @@ def movimentacao_jogador(): ####################################################
                 Variaveis_globais.grupo_players['p1'].rect = pygame.Rect(Variaveis_globais.grupo_players['p1'].rect.x, Variaveis_globais.grupo_players['p1'].rect.y + 20, 40, 25)
             else:
                 Variaveis_globais.grupo_players['p1'].rect = pygame.Rect(Variaveis_globais.grupo_players['p1'].rect.x, Variaveis_globais.grupo_players['p1'].rect.y, 40, 45)
-                
 
-
-def iniciar_save():
+def carregar_redes():
 
     # junta as duas gerações mais recentes e organiza os individuos pela recompensa obtida por cada um  
     Variaveis_globais.juncao_de_geracoes = Variaveis_globais.geracao_avo + Variaveis_globais.geracao_anterior
@@ -239,12 +206,13 @@ def iniciar_save():
                     
     # zera a geração atual para ser preenchida novamente
     Variaveis_globais.geracao_atual = []
+
     # recria a estrutura da geração atual (vazia)
     for individuo in range(numero_players):
         Variaveis_globais.geracao_atual.append([])
 
 if Variaveis_globais.contador_geracoes > 0:
-    iniciar_save()
+    carregar_redes()
     
 # cria os objetos iniciais
 criar_objetos(numero_players)

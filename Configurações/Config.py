@@ -7,11 +7,9 @@ from random import *
 
 import json
 from cProfile import run
-
 import torch
 import torch.nn.functional as F
 import numpy
-
 
 # largura e altura da tela
 largura = 1200
@@ -39,7 +37,7 @@ bias = 0
 quantidade_entradas = 6
 
 configuracao_de_camadas = (quantidade_entradas, quantidade_entradas * 2, quantidade_entradas, 2)
-funcoes_de_camadas = (2, 2, True) # [1-sigmoid, 2-relu, 3-tanh, 4-leark_relu] [softmax]
+funcoes_de_camadas = ('relu', 'relu', 'relu', True) # [1-sigmoid, 2-relu, 3-tanh, 4-leark_relu] [softmax]
 
 # quantas partidas vão ter por geração (quanto mais partidas, mais confiavel o resultado, porém, mais lento)
 partidas_por_geracao = 4

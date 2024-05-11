@@ -1,8 +1,9 @@
 from funcoes_main import *
 
+
 # loop principal
 while True:
-    
+
     # preenche a tela de preto (para ser redesenhada)
     tela.fill((000, 000, 000))
 
@@ -27,8 +28,3 @@ while True:
 
     # atualiza o display
     pygame.display.update() 
-
-
-   
-
-

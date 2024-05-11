@@ -24,15 +24,13 @@ class Colisoes:
                     if Variaveis_globais.partida_atual_da_geracao == 0:
                     
                         # junta o tempo de vida e os pesos da rede em uma lista e coloca os pesos do individuo no indice escolhido no inicio da geração
-                        Variaveis_globais.geracao_atual[player.indice] = [[ditancia_percorrida]] + Variaveis_globais.grupo_processadores[player.indice].camadas
+                        Variaveis_globais.geracao_atual[player.indice] = [[ditancia_percorrida]] + Variaveis_globais.grupo_players[player.indice].rede_neural.camadas
 
                     # se não for a primeira partida, apenas incrementa o valor (para tirar a média no futuro)
                     else:
                         Variaveis_globais.geracao_atual[player.indice][0][0] += ditancia_percorrida
-
-                    # apaga a rede da lista de redes (se não for o própio jogador)
-                    del Variaveis_globais.grupo_processadores[player.indice]
                 
+                player.desativar() 
                 chaves_para_eliminar.append(player.indice)
 
         # apaga o player da lista de players
