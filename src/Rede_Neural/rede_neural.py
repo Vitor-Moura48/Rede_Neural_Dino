@@ -1,19 +1,23 @@
 from config.configuracoes import *
 import config.Global as Global
+import funcoes_main
 
 class RedeNeural:
-    def __init__(self, camadas=[]):
+    def __init__(self, configuracao_camadas, funcoes_camadas, bias, taxa_mutacao):
 
-        self.camadas = copy.deepcopy(camadas) # variavel onde vão ser colocados os pesos 
-
-        self.taxa_de_mutacao = taxa_de_mutacao_base # definição da taxa de mutação
+        
+        self.configuracao_camadas = configuracao_camadas
+        self.funcoes_camadas = funcoes_camadas
+        self.bias = bias
+        self.taxa_de_mutacao = taxa_mutacao
+        self.camadas = [] # variavel onde vão ser colocados os pesos 
         
         # cria a estrutura de camadas com base nas configurações definidas
-        for camada in range(1, len(configuracao_de_camadas)):  # 1 porque a primeira camada é  de entrada inicial
-            self.camadas.append([numpy.array([0] * configuracao_de_camadas[camada - 1], dtype=float) for neuronio in range(configuracao_de_camadas[camada])])
+        for camada in range(1, len(self.configuracao_camadas)):  # 1 porque a primeira camada é  de entrada inicial
+            self.camadas.append([numpy.array([0] * self.configuracao_camadas[camada - 1], dtype=float) for neuronio in range(self.configuracao_camadas[camada])])
 
         # se for a primeira geração, chama uma função que randomiza todos os pesos, senão, faz uma nova a partir da(s) anterior(es)
-        self.iniciar_geracao() if Global.contador_geracoes == 0 else self.nova_geracao()
+        self.iniciar_geracao() if funcoes_main.selecao.contador_geracoes == 0 else self.nova_geracao()
 
         # variavel que vai armazenar todos os pesos daquela rede (gerados na criação de rede)
         self.tensores = [torch.tensor(camada, dtype=torch.float64) for camada in self.camadas]
@@ -25,10 +29,10 @@ class RedeNeural:
     # função utilizada para criar um anova geração
     def nova_geracao(self):
 
-        if Global.individuos_elite < numero_de_elitismo: # quantidade de cópias da melhor rede depende do valor definido
+        if funcoes_main.selecao.agentes_elite < numero_de_elitismo: # quantidade de cópias da melhor rede depende do valor definido
             
-            self.camadas = copy.deepcopy(Global.melhor_individuo[1:]) # obtem os pesos do melhor indivíduo
-            Global.individuos_elite += 1 # registra que foi feita mais uma cópia
+            self.camadas = copy.deepcopy(funcoes_main.selecao.melhor_agente[1:]) # obtem os pesos do melhor indivíduo
+            funcoes_main.selecao.agentes_elite += 1 # registra que foi feita mais uma cópia
    
         else: # faz um sorteio dos individuos com preferencia dos melhores
      
@@ -42,12 +46,6 @@ class RedeNeural:
             roleta_1 = roleta()
             roleta_2 = roleta()
 
-            # calcula a média do desempenho dos dois individuos sorteados
-            media_de_recompensa = ((Global.juncao_de_geracoes[roleta_1][0][0] + Global.juncao_de_geracoes[roleta_2][0][0]) / 2) 
-
-            # reduz a taxa de mutação base de acordo com a aproximação do objetivo
-            self.taxa_de_mutacao = taxa_de_mutacao_base - (media_de_recompensa / recompensa_objetivo)
-
             # junta caracteristicas dos dois individuos para formar o novo individuo, sorteando o ponto que vai ser unido
             camada_insercao_escolhida = randint(0, len(self.camadas) - 1) 
             neuronio_insercao_escolhido = randint(0, len(self.camadas[camada_insercao_escolhida]) - 1)
@@ -57,10 +55,10 @@ class RedeNeural:
                 for neuronio in range(len(self.camadas[camada])):
 
                     if camada < camada_insercao_escolhida or (camada == camada_insercao_escolhida and neuronio < neuronio_insercao_escolhido):                                         
-                        self.camadas[camada][neuronio] = Global.juncao_de_geracoes[roleta_1][camada + 1][neuronio]# camada +1 porque a primeira camada = fitness
+                        self.camadas[camada][neuronio] = funcoes_main.selecao.total_redes[roleta_1][camada + 1][neuronio]# camada +1 porque a primeira camada = fitness
                   
                     elif camada > camada_insercao_escolhida or (camada == camada_insercao_escolhida and neuronio >= neuronio_insercao_escolhido):
-                        self.camadas[camada][neuronio] = Global.juncao_de_geracoes[roleta_2][camada + 1][neuronio]
+                        self.camadas[camada][neuronio] = funcoes_main.selecao.total_redes[roleta_2][camada + 1][neuronio]
        
     # função utilizada para simular a mutação
     def mutacao(self):
@@ -96,11 +94,11 @@ class RedeNeural:
     def valor_de_ativacao(self):
         
         # se for Relu, leaky relu ou tangente hiperbólica, o valor de ativação é 0
-        if funcoes_de_camadas[-2] in ['relu', 'tanh', 'leaky_relu']:
+        if self.funcoes_camadas[-1] in ['relu', 'tanh', 'leaky_relu']:
             return 0
     
         # se for sigmoid, o valor mínimo é 0.5
-        elif funcoes_de_camadas[-2] == 'sigmoid':
+        elif self.funcoes_camadas[-1] == 'sigmoid':
             return 0.5
     
     def definir_entrada(self, entradas):
@@ -113,10 +111,10 @@ class RedeNeural:
         self.estado_atual_da_rede = torch.tensor(self.entrada, dtype=torch.float64)
         
         # Faz todos os calculos de cada camada e armazena em estado_atual_da_rede
-        for camada in range(1, len(configuracao_de_camadas)):
+        for camada in range(1, len(self.configuracao_camadas)):
 
-            saida_camada_tensor = torch.matmul(self.estado_atual_da_rede, self.tensores[camada - 1].t()) + bias # executa as operações entre camadas
-            saida_camada_tensor_ativada = self.aplicar_ativacao(saida_camada_tensor, Global.funcoes_de_camadas[camada - 1]) # aplica a função de ativação
+            saida_camada_tensor = torch.matmul(self.estado_atual_da_rede, self.tensores[camada - 1].t()) + self.bias # executa as operações entre camadas
+            saida_camada_tensor_ativada = self.aplicar_ativacao(saida_camada_tensor, self.funcoes_camadas[camada - 1]) # aplica a função de ativação
             self.estado_atual_da_rede = saida_camada_tensor_ativada # passa para a próxima camada, armazenando os dados da anterior
 
         # retorna True ou False para cada saída (a partir do critério da função de ativação)

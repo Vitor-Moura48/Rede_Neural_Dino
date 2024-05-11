@@ -5,7 +5,7 @@ from src.Rede_Neural.rede_neural import RedeNeural
 class Player:
     def __init__(self, real, indice):
 
-        self.rede_neural = RedeNeural()
+        self.rede_neural = RedeNeural([6, 12, 6, 2], ['relu', 'relu', 'relu'], 0, 0.06)
         self.indice = indice # indice que o player vai ser colocado na variavel geração atual
         self.real = real # define se o player é ou não um jogador
         self.distancia_percorrida = 0 # variavel para contar a quantidade de loops que o player conseguiu passar
