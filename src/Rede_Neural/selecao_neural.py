@@ -2,38 +2,46 @@ from config import Global
 from config.configuracoes import *
 
 class SelecaoNeural:
-    def __init__(self, numero_players, partidas_por_geracao):
+    def __init__(self, numero_players, partidas_por_geracao, elitismo):
         
         self.numero_players = numero_players
         self.partidas_por_geracao = partidas_por_geracao
+        self.elitismo = numero_players * elitismo
         
         self.contador_geracoes = 0
         self.contador_partidas = 0
         self.agentes_elite = 0
         self.melhor_record = 0
-        self.melhor_agente = 0
+        self.melhor_agente = None
 
         self.total_redes = []
         self.geracao_atual = []
         self.geracao_anterior = []
         self.geracao_avo = []
+
+        self.verificar_arquivos()
+        if self.contador_geracoes > 0:
+            self.carregar_redes()
     
     def update(self):
+        
+        self.contador_partidas += 1 # registra a conclusão de uma partida
 
-        # registra que uma geração foi completa
-        self.contador_geracoes += 1
-        self.contador_partidas = 0
+        # se a quantidade escolhida de partidas por geração foi completa, cria a nova geração
+        if self.contador_partidas >= self.partidas_por_geracao:
 
-        # chama a função de criar uma nova geração
-        self.nova_geracao()    
+            # registra que uma geração foi completa
+            self.contador_geracoes += 1
+            self.contador_partidas = 0
+
+            self.nova_geracao() # chama a função responsável por criar uma nova geração
 
     # função para criar uma nova geração
     def nova_geracao(self):
 
-   
         # zera algumas variaveis que serão usadas depois
         self.agentes_elite = 0
-        self.total_redes = []     
+        self.total_redes = []
 
         # salva algumas informações
         with open("dados/saves/informacoes.json", 'w') as arquivo:
@@ -45,10 +53,10 @@ class SelecaoNeural:
             self.geracao_atual[agente][0][0] /= self.partidas_por_geracao
 
             # marca o melhor tempo da geração
-            if self.geracao_atual[agente][0][0] > self.melhor_record:
+            if self.geracao_atual[agente][0][0] > self.melhor_record_geracao:
                 self.melhor_record_geracao = self.geracao_atual[agente][0][0]      
 
-                # confere se existe um novo melhor individuo
+                # confere se existe um novo melhor agente
                 if self.geracao_atual[agente][0][0] > self.melhor_record:
                     self.melhor_record = self.geracao_atual[agente][0][0]
                     self.melhor_agente = self.geracao_atual[agente]
@@ -59,7 +67,7 @@ class SelecaoNeural:
                                             for camada in self.melhor_agente
                                             ]
 
-                    # se sim, adiciona ele em um arquivo csv
+                    # se sim, adiciona o agente em um arquivo csv
                     with open("dados/saves/melhor_individuo.json", 'w') as arquivo:
                         json.dump(pesos_normalizados, arquivo)
 
@@ -77,7 +85,7 @@ class SelecaoNeural:
         self.carregar_redes()
     
     # salva a geração em um arquivo
-    def salvar_geracao(self, geracao, nome_do_arquivo): ###################################################################
+    def salvar_geracao(self, geracao, nome_do_arquivo):
         
         with open(nome_do_arquivo, "w") as arquivo:
             # tranforma os dados ndrray em listas normais 
@@ -90,58 +98,29 @@ class SelecaoNeural:
                             ]
             json.dump(lista_geracao, arquivo)
 
-    def carregar_redes(self): ###########################################################
+    def carregar_redes(self):
 
         # junta as duas gerações mais recentes e organiza os individuos pela recompensa obtida por cada um  
         self.total_redes = self.geracao_avo + self.geracao_anterior
         self.total_redes.sort(key=lambda x: x[0])
 
-        # soma todas as recompensas dos individuos
-        total_de_recompesa = sum(individuo[0][0] for individuo in self.total_redes)
-        print(len(self.total_redes))
-    
-        Global.valores_proporcionais = [self.total_redes[0][0][0] / total_de_recompesa]
-        # adiciona proporcionalmente um valor de acordo com a recompensa de cada individuo (para a roleta)
-        for individuo in range(1, len(self.total_redes) - 1):
-
-            # soma o valor anterior com o do individuo (para manter os valores "progredindo")
-            Global.valores_proporcionais.append(Global.valores_proporcionais[-1] + self.total_redes[individuo][0][0] / total_de_recompesa)
+        recompensas = numpy.array([individuo[0][0] for individuo in self.total_redes]) # obtem o array de recompensas ordenada
+        total_de_recompesa = sum(individuo[0][0] for individuo in self.total_redes) # soma todas as recompensas dos individuos
+        self.valores_proporcionais = numpy.cumsum(recompensas / total_de_recompesa) # obtem cada parcela de recompensa e mantem a acumulação
                         
-        # zera a geração atual para ser preenchida novamente
-        
-        self.geracao_atual = []
+        self.geracao_atual = [] # zera a geração atual para ser preenchida novamente
+    
+    def carregar_arquivos(self, caminho, retorno):
+        if os.path.exists(caminho):
+            with open(caminho, 'r') as arquivo:
+                return json.load(arquivo)
+        else:
+            return retorno
     
     def verificar_arquivos(self):
-        
-        # se o arquivo da geração anterior existir
-        if os.path.exists("dados/saves/geracao_anterior.json"):
-
-            # carrega os dados da ultima geração salva
-            with open("dados/saves/geracao_anterior.json", 'r') as arquivo:
-                geracao = json.load(arquivo)
-                self.geracao_anterior = geracao
-                
-            if os.path.exists("dados/saves/informacoes.json"):
-
-                with open("dados/saves/informacoes.json", 'r') as arquivo:
-                    informacoes = json.load(arquivo)
-
-                    self.contador_geracoes = informacoes[0]
-
-        # se o arquivo da geração anterior existir
-        if os.path.exists("dados/saves/geracao_avo.json"):
-
-            #carrega os dados da ultima geração salva
-            with open("dados/saves/geracao_avo.json", 'r') as arquivo:
-                geracao = json.load(arquivo)
-                self.geracao_avo = geracao
-
-
-        # se o arquivo de melhor individuo existir
-        if os.path.exists("dados/saves/melhor_individuo.json"):
-
-            # lê o arquivo e armazena os pesos
-            with open("dados/saves/melhor_individuo.json", 'r') as arquivo:
-                camadas = json.load(arquivo)
-            self.melhor_agente = camadas
-            self.melhor_record = camadas[0][0]
+            
+        self.geracao_anterior = self.carregar_arquivos("dados/saves/geracao_anterior.json", [])
+        self.contador_geracoes = self.carregar_arquivos("dados/saves/informacoes.json", 0)[0] 
+        self.geracao_avo = self.carregar_arquivos("dados/saves/geracao_avo.json", [])
+        self.melhor_agente = self.carregar_arquivos("dados/saves/melhor_individuo.json", None)
+        self.melhor_record = self.carregar_arquivos("dados/saves/melhor_individuo.json", 0)[0][0]

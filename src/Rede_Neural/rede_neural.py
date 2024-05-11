@@ -5,7 +5,6 @@ import funcoes_main
 class RedeNeural:
     def __init__(self, configuracao_camadas, funcoes_camadas, bias, taxa_mutacao):
 
-        
         self.configuracao_camadas = configuracao_camadas
         self.funcoes_camadas = funcoes_camadas
         self.bias = bias
@@ -29,7 +28,7 @@ class RedeNeural:
     # função utilizada para criar um anova geração
     def nova_geracao(self):
 
-        if funcoes_main.selecao.agentes_elite < numero_de_elitismo: # quantidade de cópias da melhor rede depende do valor definido
+        if funcoes_main.selecao.agentes_elite < funcoes_main.selecao.elitismo: # quantidade de cópias da melhor rede depende do valor definido
             
             self.camadas = copy.deepcopy(funcoes_main.selecao.melhor_agente[1:]) # obtem os pesos do melhor indivíduo
             funcoes_main.selecao.agentes_elite += 1 # registra que foi feita mais uma cópia
@@ -39,7 +38,7 @@ class RedeNeural:
             def roleta(): # sorteia um valor e busca seu indice
 
                 roleta = uniform(0, 1)
-                indice = numpy.searchsorted(Global.valores_proporcionais, roleta)
+                indice = numpy.searchsorted(funcoes_main.selecao.valores_proporcionais, roleta)
                 return indice
                 
             # sorteia dois individuos

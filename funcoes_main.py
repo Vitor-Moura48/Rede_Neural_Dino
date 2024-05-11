@@ -81,21 +81,15 @@ def atualizar_objetos():
     if Global.velocidade_cenario > 15:
         Global.velocidade_cenario = 15
 
-
 def nova_geracao_ou_nova_partida(): ##############################################################
 
-    # registra a conclusão de uma partida
-    selecao.contador_partidas += 1    
-
+    
     # zera os inimigos e recria todos depois
     Global.grupo_obstaculos = []
     Global.velocidade_cenario = 5
 
-    # confere se a quantidade escolhida de partidas por geração foi completa, se sim, cria a nova geração normalmente
-    if selecao.contador_partidas >= selecao.partidas_por_geracao:
-        selecao.update()
-
-    criar_objetos(numero_players)  
+    selecao.update()
+    criar_objetos(500)  
 
 
 # função para verificar se o jogador movimentou o player e responder (melhorar depois)
@@ -115,18 +109,9 @@ def movimentacao_jogador():
                 Global.grupo_players['p1'].rect = pygame.Rect(Global.grupo_players['p1'].rect.x, Global.grupo_players['p1'].rect.y, 40, 45)
 
 
-selecao = SelecaoNeural(500, 1)
-
-selecao.verificar_arquivos()
-
-if selecao.contador_geracoes > 0:
-    selecao.carregar_redes()
-    
-# cria os objetos iniciais
-criar_objetos(numero_players)
-
-# cria classe de colisões
-colisoes = Colisões.Colisoes()
+selecao = SelecaoNeural(500, 2, 0.3) # cria a classe que vai gerenciar as redes
+criar_objetos(500) # cria os objetos iniciais
+colisoes = Colisões.Colisoes() # cria classe de colisões
 
 
 
