@@ -1,6 +1,7 @@
-from config.configuracoes import *
-import config.Global as Global
-import funcoes_main
+import torch, copy, numpy
+import torch.nn.functional as F
+from. import estrategia_evolutiva
+from random import uniform, randint
 
 class RedeNeural:
     def __init__(self, configuracao_camadas, funcoes_camadas, bias, taxa_mutacao):
@@ -16,7 +17,7 @@ class RedeNeural:
             self.camadas.append([numpy.array([0] * self.configuracao_camadas[camada - 1], dtype=float) for neuronio in range(self.configuracao_camadas[camada])])
 
         # se for a primeira geração, chama uma função que randomiza todos os pesos, senão, faz uma nova a partir da(s) anterior(es)
-        self.iniciar_geracao() if funcoes_main.selecao.contador_geracoes == 0 else self.nova_geracao()
+        self.iniciar_geracao() if estrategia_evolutiva.gerenciador.contador_geracoes == 0 else self.nova_geracao()
 
         # variavel que vai armazenar todos os pesos daquela rede (gerados na criação de rede)
         self.tensores = [torch.tensor(camada, dtype=torch.float64) for camada in self.camadas]
@@ -28,17 +29,17 @@ class RedeNeural:
     # função utilizada para criar um anova geração
     def nova_geracao(self):
 
-        if funcoes_main.selecao.agentes_elite < funcoes_main.selecao.elitismo: # quantidade de cópias da melhor rede depende do valor definido
+        if estrategia_evolutiva.gerenciador.agentes_elite < estrategia_evolutiva.gerenciador.elitismo: # quantidade de cópias da melhor rede depende do valor definido
             
-            self.camadas = copy.deepcopy(funcoes_main.selecao.melhor_agente[1:]) # obtem os pesos do melhor indivíduo
-            funcoes_main.selecao.agentes_elite += 1 # registra que foi feita mais uma cópia
+            self.camadas = copy.deepcopy(estrategia_evolutiva.gerenciador.melhor_agente[1:]) # obtem os pesos do melhor indivíduo
+            estrategia_evolutiva.gerenciador.agentes_elite += 1 # registra que foi feita mais uma cópia
    
         else: # faz um sorteio dos individuos com preferencia dos melhores
      
             def roleta(): # sorteia um valor e busca seu indice
 
                 roleta = uniform(0, 1)
-                indice = numpy.searchsorted(funcoes_main.selecao.valores_proporcionais, roleta)
+                indice = numpy.searchsorted(estrategia_evolutiva.gerenciador.valores_proporcionais, roleta)
                 return indice
                 
             # sorteia dois individuos
@@ -54,10 +55,10 @@ class RedeNeural:
                 for neuronio in range(len(self.camadas[camada])):
 
                     if camada < camada_insercao_escolhida or (camada == camada_insercao_escolhida and neuronio < neuronio_insercao_escolhido):                                         
-                        self.camadas[camada][neuronio] = funcoes_main.selecao.total_redes[roleta_1][camada + 1][neuronio]# camada +1 porque a primeira camada = fitness
+                        self.camadas[camada][neuronio] = estrategia_evolutiva.gerenciador.total_redes[roleta_1][camada + 1][neuronio]# camada +1 porque a primeira camada = fitness
                   
                     elif camada > camada_insercao_escolhida or (camada == camada_insercao_escolhida and neuronio >= neuronio_insercao_escolhido):
-                        self.camadas[camada][neuronio] = funcoes_main.selecao.total_redes[roleta_2][camada + 1][neuronio]
+                        self.camadas[camada][neuronio] = estrategia_evolutiva.gerenciador.total_redes[roleta_2][camada + 1][neuronio]
        
     # função utilizada para simular a mutação
     def mutacao(self):

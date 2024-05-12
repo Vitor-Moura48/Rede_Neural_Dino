@@ -1,12 +1,13 @@
 from config.configuracoes import *
 import config.Global as Global
 from src.Rede_Neural.rede_neural import RedeNeural
+from src.Rede_Neural import estrategia_evolutiva
+
 
 class Player:
-    def __init__(self, real, indice):
+    def __init__(self, real):
 
         self.rede_neural = RedeNeural([6, 12, 6, 2], ['relu', 'relu', 'relu'], 0, 0.06)
-        self.indice = indice # indice que o player vai ser colocado na variavel geração atual
         self.real = real # define se o player é ou não um jogador
         self.distancia_percorrida = 0 # variavel para contar a quantidade de loops que o player conseguiu passar
         self.cor = (randint(0, 255), randint(0, 255), randint(0, 255))
@@ -61,7 +62,7 @@ class Player:
         normatizar_o_resultado()
         
         # variavel que vai conter os dados de entrada da rede
-        entradas = [Global.velocidade_cenario, self.rect.bottom]
+        entradas = [Global.grupo_obstaculos[0].velocidade, self.rect.bottom]
 
         # junta todos os dados que vão para a entrada da rede em uma única lista
         for projetil in projeteis:
@@ -69,16 +70,14 @@ class Player:
 
         # retorna as coordenadas mais próximas
         return entradas
-
-    def desativar(self):
-        Global.grupo_players_desativados[self.indice] = self
     
     # atualiza o estado do player a cada geração
     def update(self):
         
         if self.real == False:
             # conta os loops
-            self.distancia_percorrida += 1 * Global.velocidade_cenario
+            Global.grupo_obstaculos[0]
+            self.distancia_percorrida += 1 * Global.grupo_obstaculos[0].velocidade
 
             self.rede_neural.definir_entrada(self.obter_entradas())
             output = self.rede_neural.obter_saida()

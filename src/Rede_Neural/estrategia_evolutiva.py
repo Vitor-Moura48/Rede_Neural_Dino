@@ -1,7 +1,6 @@
-from config import Global
-from config.configuracoes import *
+import json, numpy, os, time, pygame, copy
 
-class SelecaoNeural:
+class GerenciadorNeural:
     def __init__(self, numero_players, partidas_por_geracao, elitismo):
         
         self.numero_players = numero_players
@@ -12,12 +11,17 @@ class SelecaoNeural:
         self.contador_partidas = 0
         self.agentes_elite = 0
         self.melhor_record = 0
-        self.melhor_agente = None
+        self.melhor_agente = None 
+        self.contador_frames = 0
+        self.tempo_inicial = time.time()
+        self.fonte = pygame.font.Font(None, 32)
 
         self.total_redes = []
         self.geracao_atual = []
         self.geracao_anterior = []
         self.geracao_avo = []
+        self.agentes = []
+        self.agentes_inativos = []
 
         self.verificar_arquivos()
         if self.contador_geracoes > 0:
@@ -35,7 +39,22 @@ class SelecaoNeural:
             self.contador_partidas = 0
 
             self.nova_geracao() # chama a função responsável por criar uma nova geração
+    
+    def fps(self, tela, largura, altura):
 
+        self.contador_frames += 1
+        tempo_atual = time.time()
+
+        delta = max(1e-10, tempo_atual - self.tempo_inicial) # nunca zerar
+        # a cada x segundos, printa a quantidade de loops feitos
+        if (delta) > 0.6:
+            self.contador_frames = 0
+            self.tempo_inicial = tempo_atual
+
+        tela.blit(self.fonte.render('fps ' + str(round(self.contador_frames / delta)), True, (255, 000, 000)), (largura * 0.8, altura * 0.05))
+        tela.blit(self.fonte.render(f"geração {self.contador_geracoes}", True, (255, 000, 000)), (largura * 0.8, altura * 0.1))
+        tela.blit(self.fonte.render(f"partida {self.contador_partidas}", True, (255, 000, 000)), (largura * 0.8, altura * 0.15))
+        
     # função para criar uma nova geração
     def nova_geracao(self):
 
@@ -120,7 +139,21 @@ class SelecaoNeural:
     def verificar_arquivos(self):
             
         self.geracao_anterior = self.carregar_arquivos("dados/saves/geracao_anterior.json", [])
-        self.contador_geracoes = self.carregar_arquivos("dados/saves/informacoes.json", 0)[0] 
+        self.contador_geracoes = self.carregar_arquivos("dados/saves/informacoes.json", [0])[0] 
         self.geracao_avo = self.carregar_arquivos("dados/saves/geracao_avo.json", [])
         self.melhor_agente = self.carregar_arquivos("dados/saves/melhor_individuo.json", None)
-        self.melhor_record = self.carregar_arquivos("dados/saves/melhor_individuo.json", 0)[0][0]
+        self.melhor_record = self.carregar_arquivos("dados/saves/melhor_individuo.json", [[0]])[0][0]
+    
+    def ativar_agentes(self, classe, *arg):
+        if self.contador_partidas == 0:
+            self.agentes = [classe(*arg) for _ in range(self.numero_players)]
+        else:
+            self.agentes = copy.deepcopy(self.agentes_inativos)
+            self.agentes_inativos = []
+    
+    def desativar_agente(self, agente):
+        self.agentes_inativos.append(agente)
+        self.agentes.remove(agente)
+
+        if self.contador_partidas == self.partidas_por_geracao-1:
+            self.geracao_atual.append([[agente.distancia_percorrida]] + agente.rede_neural.camadas)

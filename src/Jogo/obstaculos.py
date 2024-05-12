@@ -5,6 +5,7 @@ class Obstaculos:  # classe que gerencia os projeteis
     def __init__(self):
  
         self.spawn()
+        self.velocidade = 11
     
     # função para tornar aleatorio a direção e ponto de partida dos projeteis
     def spawn(self):
@@ -24,11 +25,16 @@ class Obstaculos:  # classe que gerencia os projeteis
     # função que retorna algumas informações do projetil (usado no processamento da rede)
     def buscar_informacoes(self):
         return self.largura, self.altura, self.altura_chao, self.rect.left
+
+    def acelerar(self, velocidade):
+        self.velocidade += velocidade
+        if self.velocidade > 16:
+            self.velocidade = 16
     
     # atualiza estado a cada iteração
     def update(self):
 
-        self.rect.x -= Global.velocidade_cenario
+        self.rect.x -= self.velocidade
 
         if self.rect.right < 0:
             Global.grupo_obstaculos.remove(self)

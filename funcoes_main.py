@@ -1,72 +1,30 @@
 from config.configuracoes import *
 from config import Global
 from src.Jogo import player, obstaculos, Colisões
-from src.Rede_Neural.selecao_neural import SelecaoNeural
+from src.Rede_Neural import estrategia_evolutiva
 
 # função para criar os objetos
-def criar_objetos(quantidade_playes):
+def criar_objetos():
     
     # cria o primeiro obstáculo 
     Global.grupo_obstaculos.append(obstaculos.Obstaculos())
-    
-    # cria os players a partir do valor definido em Config
-    for indice_player in range(quantidade_playes):
 
-        # se for o início de uma nova geração ele cria a nova geração normalmente
-        if selecao.contador_partidas == 0:
-            
-            agente = player.Player(False, indice_player) # cria o player, que vai aparecer na tela
-
-        # se não, copia as redes daquela geração
-        else:
-            agente = Global.grupo_players_desativados[indice_player]
-            del Global.grupo_players_desativados[indice_player]
-
-        # adiciona do grupo de redes e players novamente
-        Global.grupo_players[indice_player] = agente
+    estrategia_evolutiva.gerenciador.ativar_agentes(player.Player, False)
     
     # condição para adicionar um player para o jogador
     if quantidade_jogadores > 0:
-
-        # cria um ou dois players
-        for i in range(1, quantidade_jogadores + 1):
-    
-            agente = player.Player(True, f'p{str(i)}')  # o index nesse caso registra quem é o primeiro e o segundo player
-            Global.grupo_players[f'p{str(i)}'] = agente
-  
-# lógica para contar o fps
-def exibir_fps():
-    global mensagem_fps_para_tela
-
-    Global.contador_frames += 1
-    tempo_atual = time.time()
-
-    delta = tempo_atual - Global.tempo_inicio
-    # a cada x segundos, printa a quantidade de loops feitos
-    if (delta) > 0.5:
-
-        mensagem_fps = "fps " + str(round(Global.contador_frames / delta))
-        mensagem_fps_para_tela = fonte.render(mensagem_fps, True, (255, 000, 000))
-
-
-        Global.contador_frames = 0
-        Global.tempo_inicio = tempo_atual
-    
-    # exibe a taxa de fps no display
-    tela.blit(mensagem_fps_para_tela, (largura * 0.8, altura * 0.05))
-    tela.blit(fonte.render(f"geração {selecao.contador_geracoes}", True, (255, 000, 000)), (largura * 0.8, altura * 0.1))
-    tela.blit(fonte.render(f"partida {selecao.contador_partidas}", True, (255, 000, 000)), (largura * 0.8, altura * 0.15))
+        pass
 
 # atualiza todos os objetos
 def atualizar_objetos():
 
     # função para exibir o fps
-    exibir_fps()
+    estrategia_evolutiva.gerenciador.fps(tela, largura, altura)
 
     for obstaculo in Global.grupo_obstaculos:
         obstaculo.update()
     
-    for player in Global.grupo_players.values():
+    for player in estrategia_evolutiva.gerenciador.agentes:
         player.update()
 
     # confere as colisões
@@ -77,40 +35,26 @@ def atualizar_objetos():
         obstaculo = obstaculos.Obstaculos()
         Global.grupo_obstaculos.append(obstaculo)
 
-    Global.velocidade_cenario += 0.001
-    if Global.velocidade_cenario > 15:
-        Global.velocidade_cenario = 15
+    for obstaculo in Global.grupo_obstaculos:
+        obstaculo.acelerar(0.001)
 
-def nova_geracao_ou_nova_partida(): ##############################################################
+def nova_geracao_ou_nova_partida():
 
-    
     # zera os inimigos e recria todos depois
     Global.grupo_obstaculos = []
     Global.velocidade_cenario = 5
 
-    selecao.update()
-    criar_objetos(500)  
+    estrategia_evolutiva.gerenciador.update()
+    criar_objetos()  
 
 
 # função para verificar se o jogador movimentou o player e responder (melhorar depois)
-def movimentacao_jogador(): 
-
-    # se a configuração for de um jogador, confere se ele está ativo
-    if quantidade_jogadores == 1:
-        if 'p1' in Global.grupo_players:
-            if pygame.key.get_pressed()[K_SPACE]:
-                if Global.grupo_players['p1'].no_chao:
-                    Global.grupo_players['p1'].velocidade_y -= 18
-
-            if pygame.key.get_pressed()[K_s]:
-                Global.grupo_players['p1'].velocidade_y += 0.4
-                Global.grupo_players['p1'].rect = pygame.Rect(Global.grupo_players['p1'].rect.x, Global.grupo_players['p1'].rect.y + 20, 40, 25)
-            else:
-                Global.grupo_players['p1'].rect = pygame.Rect(Global.grupo_players['p1'].rect.x, Global.grupo_players['p1'].rect.y, 40, 45)
+def movimentacao_jogador():  ############################################################## REFAZER
+    pass
 
 
-selecao = SelecaoNeural(500, 2, 0.3) # cria a classe que vai gerenciar as redes
-criar_objetos(500) # cria os objetos iniciais
+estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(500, 2, 0.3) # cria a classe que vai gerenciar as redes
+criar_objetos() # cria os objetos iniciais
 colisoes = Colisões.Colisoes() # cria classe de colisões
 
 

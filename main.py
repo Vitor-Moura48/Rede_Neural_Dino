@@ -7,7 +7,7 @@ while True:
     tela.fill((000, 000, 000))
 
     # se todos os players foram eliminados, cria uma nova geração ou partida
-    if len(Global.grupo_players) == 0:
+    if len(estrategia_evolutiva.gerenciador.agentes) == 0:
         nova_geracao_ou_nova_partida()
 
     # função para dar update em todos os objetos
