@@ -13,7 +13,7 @@ class Colisoes:
         # confere se cada player colidiu com cada obstaculo
         for player in estrategia_evolutiva.gerenciador.agentes[:]:
             if player.rect.collidelist([projetil.rect for projetil in Global.grupo_obstaculos]) != -1:
-                estrategia_evolutiva.gerenciador.desativar_agente() 
+                estrategia_evolutiva.gerenciador.desativar_agente(player) 
             
     # função para chamar as funções de colisão a cada iteração
     def update(self):

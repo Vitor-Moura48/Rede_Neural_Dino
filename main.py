@@ -8,7 +8,7 @@ while True:
 
     # se todos os players foram eliminados, cria uma nova geração ou partida
     if len(estrategia_evolutiva.gerenciador.agentes) == 0:
-        nova_geracao_ou_nova_partida()
+        finalizar_partida()
 
     # função para dar update em todos os objetos
     atualizar_objetos()

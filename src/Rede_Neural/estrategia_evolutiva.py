@@ -1,11 +1,13 @@
 import json, numpy, os, time, pygame, copy
 
 class GerenciadorNeural:
-    def __init__(self, numero_players, partidas_por_geracao, elitismo):
+    def __init__(self, numero_players, partidas_por_geracao, elitismo, classe, *arg):
         
         self.numero_players = numero_players
         self.partidas_por_geracao = partidas_por_geracao
         self.elitismo = numero_players * elitismo
+        self.classe = classe
+        self.arg = arg
         
         self.contador_geracoes = 0
         self.contador_partidas = 0
@@ -27,18 +29,18 @@ class GerenciadorNeural:
         if self.contador_geracoes > 0:
             self.carregar_redes()
     
-    def update(self):
+    def nova_partida(self):
         
         self.contador_partidas += 1 # registra a conclusão de uma partida
-
-        # se a quantidade escolhida de partidas por geração foi completa, cria a nova geração
-        if self.contador_partidas >= self.partidas_por_geracao:
+        if self.contador_partidas > self.partidas_por_geracao:# se as partidas da geração acabaram, cria a nova geração
 
             # registra que uma geração foi completa
             self.contador_geracoes += 1
-            self.contador_partidas = 0
+            self.contador_partidas = 1
 
             self.nova_geracao() # chama a função responsável por criar uma nova geração
+        
+        self.ativar_agentes(self.classe, *self.arg)
     
     def fps(self, tela, largura, altura):
 
@@ -66,7 +68,7 @@ class GerenciadorNeural:
         with open("dados/saves/informacoes.json", 'w') as arquivo:
             json.dump([self.contador_geracoes], arquivo)
        
-        # divide a recompensa pela quantidade de partidas para fazer a media de recompensa 
+        # divide a recompensa pela quantidade de partidas para fazer a media de recompensa
         self.melhor_record_geracao = 0
         for agente in range(self.numero_players):
             self.geracao_atual[agente][0][0] /= self.partidas_por_geracao
@@ -145,7 +147,7 @@ class GerenciadorNeural:
         self.melhor_record = self.carregar_arquivos("dados/saves/melhor_individuo.json", [[0]])[0][0]
     
     def ativar_agentes(self, classe, *arg):
-        if self.contador_partidas == 0:
+        if self.contador_partidas == 1:
             self.agentes = [classe(*arg) for _ in range(self.numero_players)]
         else:
             self.agentes = copy.deepcopy(self.agentes_inativos)
@@ -155,5 +157,5 @@ class GerenciadorNeural:
         self.agentes_inativos.append(agente)
         self.agentes.remove(agente)
 
-        if self.contador_partidas == self.partidas_por_geracao-1:
+        if self.contador_partidas == self.partidas_por_geracao:
             self.geracao_atual.append([[agente.distancia_percorrida]] + agente.rede_neural.camadas)

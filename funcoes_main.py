@@ -5,11 +5,11 @@ from src.Rede_Neural import estrategia_evolutiva
 
 # função para criar os objetos
 def criar_objetos():
+
+    estrategia_evolutiva.gerenciador.nova_partida()
     
     # cria o primeiro obstáculo 
     Global.grupo_obstaculos.append(obstaculos.Obstaculos())
-
-    estrategia_evolutiva.gerenciador.ativar_agentes(player.Player, False)
     
     # condição para adicionar um player para o jogador
     if quantidade_jogadores > 0:
@@ -38,22 +38,18 @@ def atualizar_objetos():
     for obstaculo in Global.grupo_obstaculos:
         obstaculo.acelerar(0.001)
 
-def nova_geracao_ou_nova_partida():
+def finalizar_partida():
 
     # zera os inimigos e recria todos depois
     Global.grupo_obstaculos = []
     Global.velocidade_cenario = 5
-
-    estrategia_evolutiva.gerenciador.update()
     criar_objetos()  
-
 
 # função para verificar se o jogador movimentou o player e responder (melhorar depois)
 def movimentacao_jogador():  ############################################################## REFAZER
     pass
 
-
-estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(500, 2, 0.3) # cria a classe que vai gerenciar as redes
+estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(500, 2, 0.3, player.Player, False) # cria a classe que vai gerenciar as redes
 criar_objetos() # cria os objetos iniciais
 colisoes = Colisões.Colisoes() # cria classe de colisões
 
