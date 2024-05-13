@@ -23,7 +23,7 @@ while True:
     movimentacao_jogador()
 
     # define um limite de fps
-    Global.clock.tick(fps)
+    pygame.time.Clock().tick(fps)
 
     # atualiza o display
     pygame.display.update() 

@@ -1,5 +1,4 @@
 from config.configuracoes import *
-from config import Global
 from src.Jogo import player, obstaculos, Colisões
 from src.Rede_Neural import estrategia_evolutiva
 
@@ -9,7 +8,7 @@ def criar_objetos():
     estrategia_evolutiva.gerenciador.nova_partida()
     
     # cria o primeiro obstáculo 
-    Global.grupo_obstaculos.append(obstaculos.Obstaculos())
+    obstaculos.grupo_obstaculos.append(obstaculos.Obstaculos())
 
     player.jogador = player.Player(real=True)
     
@@ -19,7 +18,7 @@ def atualizar_objetos():
     # função para exibir o fps
     estrategia_evolutiva.gerenciador.fps(tela, largura, altura)
 
-    for obstaculo in Global.grupo_obstaculos:
+    for obstaculo in obstaculos.grupo_obstaculos:
         obstaculo.update()
     
     for agente in estrategia_evolutiva.gerenciador.agentes:
@@ -32,19 +31,18 @@ def atualizar_objetos():
     # confere as colisões
     colisoes.update()
 
-    if largura - Global.grupo_obstaculos[-1].rect.x > 400:
+    if largura - obstaculos.grupo_obstaculos[-1].rect.x > 400:
 
         obstaculo = obstaculos.Obstaculos()
-        Global.grupo_obstaculos.append(obstaculo)
+        obstaculos.grupo_obstaculos.append(obstaculo)
 
-    for obstaculo in Global.grupo_obstaculos:
+    for obstaculo in obstaculos.grupo_obstaculos:
         obstaculo.acelerar(0.001)
 
 def finalizar_partida():
 
     # zera os inimigos e recria todos depois
-    Global.grupo_obstaculos = []
-    Global.velocidade_cenario = 5
+    obstaculos.grupo_obstaculos = []
     criar_objetos()  
 
 # função para verificar se o jogador movimentou o player e responder (melhorar depois)

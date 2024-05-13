@@ -1,7 +1,6 @@
 from config.configuracoes import *
-import config.Global as Global
+from . import obstaculos
 from src.Rede_Neural.rede_neural import RedeNeural
-from src.Rede_Neural import estrategia_evolutiva
 
 
 class Player:
@@ -31,7 +30,7 @@ class Player:
         projeteis = []
 
         def obter_distancias():
-            for projetil in Global.grupo_obstaculos:
+            for projetil in obstaculos.grupo_obstaculos:
               
                 dados = projetil.buscar_informacoes()
 
@@ -62,7 +61,7 @@ class Player:
         normatizar_o_resultado()
         
         # variavel que vai conter os dados de entrada da rede
-        entradas = [Global.grupo_obstaculos[0].velocidade, self.rect.bottom]
+        entradas = [obstaculos.grupo_obstaculos[0].velocidade, self.rect.bottom]
 
         # junta todos os dados que vão para a entrada da rede em uma única lista
         for projetil in projeteis:
@@ -87,8 +86,8 @@ class Player:
 
         if self.real == False:
             # conta os loops
-            Global.grupo_obstaculos[0]
-            self.distancia_percorrida += 1 * Global.grupo_obstaculos[0].velocidade
+            obstaculos.grupo_obstaculos[0]
+            self.distancia_percorrida += 1 * obstaculos.grupo_obstaculos[0].velocidade
 
             self.rede_neural.definir_entrada(self.obter_entradas())
             output = self.rede_neural.obter_saida()

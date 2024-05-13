@@ -1,5 +1,4 @@
 from config.configuracoes import *
-from config import Global
 
 class Obstaculos:  # classe que gerencia os projeteis
     def __init__(self):
@@ -37,10 +36,12 @@ class Obstaculos:  # classe que gerencia os projeteis
         self.rect.x -= self.velocidade
 
         if self.rect.right < 0:
-            Global.grupo_obstaculos.remove(self)
+            grupo_obstaculos.remove(self)
 
         # cria um retandulo de colisão e mostra na tela 
         pygame.draw.rect(tela, (255, 000, 000), self.rect)
+
+grupo_obstaculos = []
 
         
 

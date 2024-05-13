@@ -30,7 +30,7 @@ class GerenciadorNeural:
             self.carregar_redes()
     
     def nova_partida(self):
-        
+
         self.contador_partidas += 1 # registra a conclusão de uma partida
         if self.contador_partidas > self.partidas_por_geracao:# se as partidas da geração acabaram, cria a nova geração
 
@@ -146,12 +146,9 @@ class GerenciadorNeural:
         self.melhor_agente = self.carregar_arquivos("dados/saves/melhor_individuo.json", None)
         self.melhor_record = self.carregar_arquivos("dados/saves/melhor_individuo.json", [[0]])[0][0]
     
-    def ativar_agentes(self, classe, *arg):
-        if self.contador_partidas == 1:
-            self.agentes = [classe(*arg) for _ in range(self.numero_players)]
-        else:
-            self.agentes = copy.deepcopy(self.agentes_inativos)
-            self.agentes_inativos = []
+    def ativar_agentes(self, classe, *arg): # preenche a lista de agentes novos ou reativa os agentes
+        self.agentes = [classe(*arg) for _ in range(self.numero_players)] if self.contador_partidas == 1 else copy.deepcopy(self.agentes_inativos)
+        self.agentes_inativos = []
     
     def desativar_agente(self, agente):
         self.agentes_inativos.append(agente)

@@ -1,14 +1,13 @@
 from config.configuracoes import *
-import config.Global as Global
 from ..Rede_Neural import estrategia_evolutiva
-from . import player
+from . import player, obstaculos
 
 #classe para conferir conliões
 class Colisoes:
 
     # função para conferir as colisões com o player
     def verificar_colisao(self, objeto):
-        if objeto.rect.collidelist([projetil.rect for projetil in Global.grupo_obstaculos]) != -1:
+        if objeto.rect.collidelist([projetil.rect for projetil in obstaculos.grupo_obstaculos]) != -1:
             estrategia_evolutiva.gerenciador.desativar_agente(objeto)
             
     # função para chamar as funções de colisão a cada iteração
@@ -17,7 +16,7 @@ class Colisoes:
             self.verificar_colisao(agente)
         
         try: 
-            if player.jogador.rect.collidelist([projetil.rect for projetil in Global.grupo_obstaculos]) != -1:
+            if player.jogador.rect.collidelist([projetil.rect for projetil in obstaculos.grupo_obstaculos]) != -1:
                 player.jogador = None
         except: pass
 
