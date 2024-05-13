@@ -1,5 +1,5 @@
 from config.configuracoes import *
-from src.Jogo import player, obstaculos, Colisões
+from src.Jogo import player, obstaculos, Colisões, visualizador
 from src.Rede_Neural import estrategia_evolutiva
 
 # função para criar os objetos
@@ -16,7 +16,7 @@ def criar_objetos():
 def atualizar_objetos():
 
     # função para exibir o fps
-    estrategia_evolutiva.gerenciador.fps(tela, largura, altura)
+    visualizador.dados.update()
 
     for obstaculo in obstaculos.grupo_obstaculos:
         obstaculo.update()
@@ -45,7 +45,7 @@ def finalizar_partida():
     obstaculos.grupo_obstaculos = []
     criar_objetos()  
 
-# função para verificar se o jogador movimentou o player e responder (melhorar depois)
+# função para verificar se o jogador movimentou o player (melhorar depois)
 def movimentacao_jogador():
     try:
         if pygame.key.get_pressed()[K_SPACE]:
@@ -59,6 +59,7 @@ def movimentacao_jogador():
 estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(500, 2, 0.3, player.Player) # cria a classe que vai gerenciar as redes
 criar_objetos() # cria os objetos iniciais
 colisoes = Colisões.Colisoes() # cria classe de colisões
+visualizador.dados = visualizador.Visualizador()
 
 
 
