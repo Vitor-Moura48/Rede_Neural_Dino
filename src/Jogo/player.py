@@ -5,7 +5,7 @@ from src.Rede_Neural import estrategia_evolutiva
 
 
 class Player:
-    def __init__(self, real):
+    def __init__(self, real=False):
 
         self.rede_neural = RedeNeural([6, 12, 6, 2], ['relu', 'relu', 'relu'], 0, 0.06)
         self.real = real # define se o player é ou não um jogador
@@ -23,7 +23,7 @@ class Player:
 
         if self.real:
             self.rect.x = 50
-    
+
     # função para retornar as entradas para a rede neural
     def obter_entradas(self):
        
@@ -70,10 +70,21 @@ class Player:
 
         # retorna as coordenadas mais próximas
         return entradas
+
+    def pular(self):
+        if self.no_chao:
+            self.velocidade_y -= 18
+    
+    def abaixar(self):
+        self.velocidade_y += 0.4
+        self.rect = pygame.Rect(self.rect.x, self.rect.y + 20, 40, 25)
+    
+    def levantar(self):
+        self.rect = pygame.Rect(self.rect.x, self.rect.y, 40, 45)
     
     # atualiza o estado do player a cada geração
     def update(self):
-        
+
         if self.real == False:
             # conta os loops
             Global.grupo_obstaculos[0]
@@ -83,14 +94,10 @@ class Player:
             output = self.rede_neural.obter_saida()
 
             if output[0]:
-                if self.no_chao:
-                    self.velocidade_y -= 18
+                self.pular()
 
             if output[1]:
-                self.velocidade_y += 0.4
-                self.rect = pygame.Rect(self.rect.x, self.rect.y + 20, 40, 25)
-            else:
-                self.rect = pygame.Rect(self.rect.x, self.rect.y, 40, 45)
+                self.abaixar()
                 
         # move o retangulo
         self.rect.y += int(self.velocidade_y)

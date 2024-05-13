@@ -10,11 +10,9 @@ def criar_objetos():
     
     # cria o primeiro obstáculo 
     Global.grupo_obstaculos.append(obstaculos.Obstaculos())
-    
-    # condição para adicionar um player para o jogador
-    if quantidade_jogadores > 0:
-        pass
 
+    player.jogador = player.Player(real=True)
+    
 # atualiza todos os objetos
 def atualizar_objetos():
 
@@ -24,8 +22,12 @@ def atualizar_objetos():
     for obstaculo in Global.grupo_obstaculos:
         obstaculo.update()
     
-    for player in estrategia_evolutiva.gerenciador.agentes:
-        player.update()
+    for agente in estrategia_evolutiva.gerenciador.agentes:
+        agente.update()
+    
+    try: 
+        player.jogador.update()
+    except: pass
 
     # confere as colisões
     colisoes.update()
@@ -46,10 +48,17 @@ def finalizar_partida():
     criar_objetos()  
 
 # função para verificar se o jogador movimentou o player e responder (melhorar depois)
-def movimentacao_jogador():  ############################################################## REFAZER
-    pass
+def movimentacao_jogador():
+    try:
+        if pygame.key.get_pressed()[K_SPACE]:
+            player.jogador.pular()
+        if pygame.key.get_pressed()[K_s]:
+            player.jogador.abaixar()
+        else:
+            player.jogador.levantar()
+    except: pass
 
-estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(500, 2, 0.3, player.Player, False) # cria a classe que vai gerenciar as redes
+estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(500, 2, 0.3, player.Player) # cria a classe que vai gerenciar as redes
 criar_objetos() # cria os objetos iniciais
 colisoes = Colisões.Colisoes() # cria classe de colisões
 

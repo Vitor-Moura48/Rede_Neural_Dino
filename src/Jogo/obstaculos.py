@@ -28,8 +28,8 @@ class Obstaculos:  # classe que gerencia os projeteis
 
     def acelerar(self, velocidade):
         self.velocidade += velocidade
-        if self.velocidade > 16:
-            self.velocidade = 16
+        if self.velocidade > 18:
+            self.velocidade = 18
     
     # atualiza estado a cada iteração
     def update(self):
