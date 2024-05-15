@@ -1,10 +1,11 @@
 from config.configuracoes import *
 
 class Obstaculos:  # classe que gerencia os projeteis
+    velocidade_cenario = 11
     def __init__(self):
  
         self.spawn()
-        self.velocidade = 11
+        self.velocidade = Obstaculos.velocidade_cenario
     
     # função para tornar aleatorio a direção e ponto de partida dos projeteis
     def spawn(self):
@@ -19,17 +20,13 @@ class Obstaculos:  # classe que gerencia os projeteis
         
         self.rect = pygame.Rect(largura, altura - self.altura_chao, self.altura, self.largura)
         self.rect.bottom = altura - self.altura_chao
+        self.rect.left = largura + randint(0, 150)
 
 
     # função que retorna algumas informações do projetil (usado no processamento da rede)
     def buscar_informacoes(self):
         return self.largura, self.altura, self.altura_chao, self.rect.left
-
-    def acelerar(self, velocidade):
-        self.velocidade += velocidade
-        if self.velocidade > 18:
-            self.velocidade = 18
-    
+        
     # atualiza estado a cada iteração
     def update(self):
 

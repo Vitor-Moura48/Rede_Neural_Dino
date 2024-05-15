@@ -8,11 +8,12 @@ def criar_objetos():
     estrategia_evolutiva.gerenciador.nova_partida()
     
     # cria o primeiro obstáculo 
+    obstaculos.Obstaculos.velocidade_cenario = 11
     obstaculos.grupo_obstaculos.append(obstaculos.Obstaculos())
 
     player.jogador = player.Player(real=True)
     
-# atualiza todos os objetos
+# atualiza todos os objetos=
 def atualizar_objetos():
 
     # função para exibir o fps
@@ -36,8 +37,9 @@ def atualizar_objetos():
         obstaculo = obstaculos.Obstaculos()
         obstaculos.grupo_obstaculos.append(obstaculo)
 
-    for obstaculo in obstaculos.grupo_obstaculos:
-        obstaculo.acelerar(0.001)
+    obstaculos.Obstaculos.velocidade_cenario += 0.001
+    if obstaculos.Obstaculos.velocidade_cenario > 20:
+        obstaculos.Obstaculos.velocidade_cenario = 20
 
 def finalizar_partida():
 
@@ -56,7 +58,7 @@ def movimentacao_jogador():
             player.jogador.levantar()
     except: pass
 
-estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(500, 2, 0.3, player.Player) # cria a classe que vai gerenciar as redes
+estrategia_evolutiva.gerenciador = estrategia_evolutiva.GerenciadorNeural(1000, 2, 0.3, player.Player) # cria a classe que vai gerenciar as redes
 criar_objetos() # cria os objetos iniciais
 colisoes = Colisões.Colisoes() # cria classe de colisões
 visualizador.dados = visualizador.Visualizador()
