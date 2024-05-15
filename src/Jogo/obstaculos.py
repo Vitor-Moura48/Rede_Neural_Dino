@@ -20,7 +20,7 @@ class Obstaculos:  # classe que gerencia os projeteis
         
         self.rect = pygame.Rect(largura, altura - self.altura_chao, self.altura, self.largura)
         self.rect.bottom = altura - self.altura_chao
-        self.rect.left = largura + randint(0, 150)
+        self.rect.left = largura
 
 
     # função que retorna algumas informações do projetil (usado no processamento da rede)

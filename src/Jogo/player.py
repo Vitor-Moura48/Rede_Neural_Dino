@@ -72,11 +72,15 @@ class Player:
 
     def pular(self):
         if self.no_chao:
-            self.velocidade_y -= 18
+            self.velocidade_y -= 20
     
     def abaixar(self):
-        self.velocidade_y += 0.4
-        self.rect = pygame.Rect(self.rect.x, self.rect.y + 20, 40, 25)
+        if self.velocidade_y < 0:
+            self.velocidade_y = 0
+        if self.no_chao:
+            self.rect = pygame.Rect(self.rect.x, self.rect.y + 20, 40, 25)
+
+        self.velocidade_y += 2.5
     
     def levantar(self):
         self.rect = pygame.Rect(self.rect.x, self.rect.y, 40, 45)
@@ -97,8 +101,10 @@ class Player:
 
             if output[1]:
                 self.abaixar()
-                
-        # move o retangulo
+            else:
+                self.levantar()
+        
+         # move o retangulo
         self.rect.y += int(self.velocidade_y)
 
         # Gravidade
@@ -108,8 +114,7 @@ class Player:
             self.velocidade_y = 0
         else:
             self.no_chao = False
-            self.velocidade_y += 1.1
+            self.velocidade_y += 1.25
 
-        
         # cria um retandulo de colisão e mostra na tela
         draw.rect(tela, self.cor, self.rect)
