@@ -1,26 +1,36 @@
 import torch, copy, numpy
 import torch.nn.functional as F
+import torch.nn as nn
 from. import estrategia_evolutiva
 from random import uniform, randint
 
-class RedeNeural:
+class RedeNeural(nn.Module):
     def __init__(self, configuracao_camadas, funcoes_camadas, bias, taxa_mutacao):
+        super(RedeNeural, self).__init__() # garante que o nn.Module sejá inicializado antes de tudo ##########################################################################
 
         self.configuracao_camadas = configuracao_camadas
         self.funcoes_camadas = funcoes_camadas
         self.bias = bias
         self.taxa_de_mutacao = taxa_mutacao
         self.camadas = [] # variavel onde vão ser colocados os pesos 
-        
-        # cria a estrutura de camadas com base nas configurações definidas
-        for camada in range(1, len(self.configuracao_camadas)):  # 1 porque a primeira camada é  de entrada inicial
-            self.camadas.append([numpy.array([0] * self.configuracao_camadas[camada - 1], dtype=float) for neuronio in range(self.configuracao_camadas[camada])])
+        self.entrada = torch.zeros(configuracao_camadas[0], dtype=torch.float32)
 
-        # se for a primeira geração, chama uma função que randomiza todos os pesos, senão, faz uma nova a partir da(s) anterior(es)
-        self.iniciar_geracao() if estrategia_evolutiva.gerenciador.contador_geracoes == 0 else self.nova_geracao()
 
-        # variavel que vai armazenar todos os pesos daquela rede (gerados na criação de rede)
-        self.tensores = [torch.tensor(camada, dtype=torch.float64) for camada in self.camadas]
+        self.funcoes_camadas = []
+        for i in range(len(funcoes_camadas)):
+            if funcoes_camadas[i] == 'relu':
+                self.funcoes_camadas.append(nn.ReLU())
+            if funcoes_camadas[i] == 'sigmoid':
+                self.funcoes_camadas.append(nn.Sigmoid())
+
+        camadas = []
+        for camada in range(len(configuracao_camadas) - 1): # -1 porque a ultima camada não tem uma próxima apra ligar (linha de baixo)
+            camadas.append(nn.Linear(self.configuracao_camadas[camada], (self.configuracao_camadas[camada+1]))) # faz a ligação completa da camada com a proxima
+            camadas.append(self.funcoes_camadas[camada])
+
+        self.rede = nn.Sequential(*camadas) # junta todas as ligações, cria a rede em si
+
+
   
     # função utilizada para criar a primeira geração
     def iniciar_geracao(self):
@@ -74,51 +84,27 @@ class RedeNeural:
 
         # retorna todos os pesos do individuo deposi da mutação
         return (self.camadas)
-
-    # seleciona a função de ativação de acordo com a configuração
-    def aplicar_ativacao(self, tensor, tipo):
-
-        if tipo == 'sigmoid':
-            return F.sigmoid(tensor)
-            
-        elif tipo == 'relu':
-            return F.relu(tensor)
-        
-        elif tipo == 'tanh':
-            return F.tanh(tensor)
-    
-        elif tipo == 'leaky_relu':
-            return F.leaky_relu(tensor)
     
     # retorna o valor mínimo para ativar o neuronio
     def valor_de_ativacao(self):
         
         # se for Relu, leaky relu ou tangente hiperbólica, o valor de ativação é 0
-        if self.funcoes_camadas[-1] in ['relu', 'tanh', 'leaky_relu']:
+        if isinstance(self.funcoes_camadas[-1], (nn.ReLU, nn.LeakyReLU, nn.Tanh)):
             return 0
     
         # se for sigmoid, o valor mínimo é 0.5
-        elif self.funcoes_camadas[-1] == 'sigmoid':
+        if isinstance(self.funcoes_camadas[-1], (nn.Sigmoid)):
             return 0.5
     
     def definir_entrada(self, entradas):
-        self.entrada = entradas
+        self.entrada = torch.tensor(entradas, dtype=torch.float32)
 
     # atualiza o estado da rede a cada iteração
     def obter_saida(self):
-        
-        # armazena o resultado temporario de cada camada
-        self.estado_atual_da_rede = torch.tensor(self.entrada, dtype=torch.float64)
-        
-        # Faz todos os calculos de cada camada e armazena em estado_atual_da_rede
-        for camada in range(1, len(self.configuracao_camadas)):
-
-            saida_camada_tensor = torch.matmul(self.estado_atual_da_rede, self.tensores[camada - 1].t()) + self.bias # executa as operações entre camadas
-            saida_camada_tensor_ativada = self.aplicar_ativacao(saida_camada_tensor, self.funcoes_camadas[camada - 1]) # aplica a função de ativação
-            self.estado_atual_da_rede = saida_camada_tensor_ativada # passa para a próxima camada, armazenando os dados da anterior
 
         # retorna True ou False para cada saída (a partir do critério da função de ativação)
-        return [True if comando > self.valor_de_ativacao() else False for comando in self.estado_atual_da_rede.tolist()]
+        saida = self.rede(self.entrada).tolist()
+        return [True if comando > self.valor_de_ativacao() else False for comando in saida]
 
 
     
