@@ -13,15 +13,9 @@ class RedeNeural(nn.Module):
         self.bias = bias
         self.taxa_de_mutacao = taxa_mutacao
         self.camadas = [] # variavel onde vão ser colocados os pesos 
-        self.entrada = torch.zeros(configuracao_camadas[0], dtype=torch.float32)
 
-
-        self.funcoes_camadas = []
-        for i in range(len(funcoes_camadas)):
-            if funcoes_camadas[i] == 'relu':
-                self.funcoes_camadas.append(nn.ReLU())
-            if funcoes_camadas[i] == 'sigmoid':
-                self.funcoes_camadas.append(nn.Sigmoid())
+        funcoes = {'relu': nn.ReLU(), 'leak_relu': nn.LeakyReLU(), 'sigmoid': nn. Sigmoid(), 'tanh': nn.Tanh()}
+        self.funcoes_camadas = [funcoes[funcao] for funcao in funcoes_camadas]
 
         camadas = []
         for camada in range(len(configuracao_camadas) - 1): # -1 porque a ultima camada não tem uma próxima apra ligar (linha de baixo)
@@ -30,8 +24,6 @@ class RedeNeural(nn.Module):
 
         self.rede = nn.Sequential(*camadas) # junta todas as ligações, cria a rede em si
 
-
-  
     # função utilizada para criar a primeira geração
     def iniciar_geracao(self):
         self.camadas = [ [ [uniform(-1, 1) for peso in range(len(neuronio))] for neuronio in camada] for camada in self.camadas]
@@ -85,17 +77,6 @@ class RedeNeural(nn.Module):
         # retorna todos os pesos do individuo deposi da mutação
         return (self.camadas)
     
-    # retorna o valor mínimo para ativar o neuronio
-    def valor_de_ativacao(self):
-        
-        # se for Relu, leaky relu ou tangente hiperbólica, o valor de ativação é 0
-        if isinstance(self.funcoes_camadas[-1], (nn.ReLU, nn.LeakyReLU, nn.Tanh)):
-            return 0
-    
-        # se for sigmoid, o valor mínimo é 0.5
-        if isinstance(self.funcoes_camadas[-1], (nn.Sigmoid)):
-            return 0.5
-    
     def definir_entrada(self, entradas):
         self.entrada = torch.tensor(entradas, dtype=torch.float32)
 
@@ -103,8 +84,7 @@ class RedeNeural(nn.Module):
     def obter_saida(self):
 
         # retorna True ou False para cada saída (a partir do critério da função de ativação)
-        saida = self.rede(self.entrada).tolist()
-        return [True if comando > self.valor_de_ativacao() else False for comando in saida]
+        return self.rede(self.entrada).bool()
 
 
     
