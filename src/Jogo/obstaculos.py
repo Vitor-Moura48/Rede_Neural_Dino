@@ -11,7 +11,7 @@ class Obstaculos:  # classe que gerencia os projeteis
     def spawn(self):
         
         # largura, altura, altura para o fim da tela
-        dimensoes = [[15, 33, 15], [23, 46, 15], [32, 33, 15], [55, 50, 110], [42, 36, 44], [49, 33, 15], [65, 47, 15]] 
+        dimensoes = [[15, 33, 15], [23, 46, 15], [32, 33, 15], [100, 60, 110], [42, 36, 44], [49, 33, 15], [65, 47, 15], [50, 150, 55]] 
         escolha = choice(dimensoes)#[45, 100, 55]
 
         self.altura = escolha[0]

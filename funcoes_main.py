@@ -38,8 +38,8 @@ def atualizar_objetos():
         obstaculos.grupo_obstaculos.append(obstaculo)
 
     obstaculos.Obstaculos.velocidade_cenario += 0.005
-    if obstaculos.Obstaculos.velocidade_cenario > 18:
-        obstaculos.Obstaculos.velocidade_cenario = 18
+    if obstaculos.Obstaculos.velocidade_cenario > 20:
+        obstaculos.Obstaculos.velocidade_cenario = 20
 
 def finalizar_partida():
 

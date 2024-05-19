@@ -59,15 +59,17 @@ class RedeNeural:
                   
                     elif camada > camada_insercao_escolhida or (camada == camada_insercao_escolhida and neuronio >= neuronio_insercao_escolhido):
                         self.camadas[camada][neuronio] = estrategia_evolutiva.gerenciador.total_redes[roleta_2][camada + 1][neuronio]
+
+        self.mutacao()
        
     # função utilizada para simular a mutação
     def mutacao(self):
-
+  
         # randomizando cada peso de acordo com a taxa de mutação
         for camada in range(len(self.camadas)):
             for neuronio in range(len(self.camadas[camada])):
                 for peso in range(len(self.camadas[camada][neuronio])):
-        
+
                     # quanto maior a taxa de mutação, mais provavel é a alteração
                     if uniform(0, 1) <= self.taxa_de_mutacao:
                         self.camadas[camada][neuronio][peso] = round(uniform(-1, 1), 16) 
